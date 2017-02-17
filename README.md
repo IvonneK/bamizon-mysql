@@ -1,9 +1,9 @@
 bamizon-mysql 
 
 #Bamizon storefront
-Bamizon is similar to Amazon storefront. Bamizon storefront uses mySQL and node inquirer.<br> 
-The app takes orders from customers and depletes stock from the store's inventory. Project will contain a bamazon.sql file containing data exported from the database<br>
-
+Bamizon is similar to the Amazon storefront. Bamizon uses mySQL and node.js.<br> 
+The app takes orders from customers using npm inquirer. The items ordered depletes the stock from Bamizon's inventory.<br>
+The bamazon.sql file in this repo contains data exported from the database.<br>
 
 ## What it looks like:
 not available yet
@@ -12,8 +12,9 @@ not available yet
 - JavaScript 
 - node.js 
 - npm modules used:<br>
-**inquirer** to prompt user for data<br> 
--mySQL relational database
+**inquirer** to prompt user for data<br>
+**mysql** to have the ability to access mySQL database using node.js  
+- **mySQL** relational database
 
 
 ## Built With:
