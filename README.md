@@ -9,12 +9,12 @@ The bamazon.sql file in this repo contains data exported from the database.<br>
 not available yet
 
 ## Technologies Used: 
+- mySQL relational database
 - JavaScript 
 - node.js 
 - npm modules used:<br>
 **inquirer** to prompt user for data<br>
 **mysql** to have the ability to access mySQL database using node.js  
-- **mySQL** relational database
 
 
 ## Built With:
