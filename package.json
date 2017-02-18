@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/IvonneK/bamizon-mysql#readme",
   "dependencies": {
+    "inquirer": "^3.0.1",
     "mysql": "^2.13.0"
   }
 }
