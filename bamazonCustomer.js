@@ -1,4 +1,10 @@
-
+// Web Developer: Ivonne Komis
+// PURPOSE OF APP: Bamazon is an app that is a storefront on the web(similar to amazon)
+// It is  node app that uses inquirer and stores and retrieves data from mySQL db.
+// It uses the command line to get responses from the customer.
+// sed: Javascript Node.js and installed npm packages listed (require) 
+// It updates the inventory on the products table and it add sales data.
+// NOTE: OMDB is randomly down feel free to request any movie
 
 var mysql = require('mysql');
 var inquirer = require('inquirer');
@@ -26,7 +32,7 @@ connection.connect();
  var table  = "products";
 
 function selectTable(table){
-	connection.query('SELECT * from ' + table, function (error, results, fields) {
+	connection.query('SELECT * from ' + table, function (error, results) {
 	  	if (error) throw error;
 	  	console.log('All records from products'); 
 	  	for (var i = 0; i < results.length; i++){
@@ -41,8 +47,7 @@ var productChoice;
 
 var selectChoice = "SELECT products.id, departments.department_name, products.product_name, concat('$', format(products.price,2)) as p FROM products LEFT JOIN departments ON products.department_id = departments.id ORDER BY department_name";
 // var selectChoice = "SELECT departments.department_name, id, product_name, concat('$', format(price,2)) as p from products left join departments on products.department_id = departments.id"
-console.log(selectChoice);
-connection.query(selectChoice, function(error, results, fields) {
+connection.query(selectChoice, function(error, results) {
 		console.log(results);
 		for (var i = 0; i < results.length; i++){
 		  	// console.log('(id: ' + results[i].id + ')  ' + results[i].product_name + ' ' + results[i].p);
@@ -65,7 +70,8 @@ connection.query(selectChoice, function(error, results, fields) {
 		},
 		{type: "input",
 			name: "quantity",
-			message: "How many would you like to order?"
+			message: "How many would you like to order?",
+			default: 1
 		}	
 	]).then(function(data){
 		console.log(data);
@@ -82,7 +88,7 @@ connection.query(selectChoice, function(error, results, fields) {
 		connection.query({
 					sql: "SELECT * from products where id = ?", 
 					values: productChoice
-				}, function(error, results, fields){
+				}, function(error, results){
 						console.log(results);
 						console.log(productChoice, quantity);
 						console.log(results.stock_quantity);
@@ -100,21 +106,19 @@ function checkInventory(productChoice, howMany, checkStock) {
 	if (inStock < 0){
 		console.log('Sorry we are currently out of stock. Please make another selection.');
 	}else{
-		console.log('before update set stock_quantity=', inStock);
+		console.log('UPDATING products stock quantity and sales tables....');
 
 		// update products deduct howMany from stock_quantity in products table
 		connection.query({
 						sql: 'UPDATE products SET stock_quantity = ?  WHERE id = ?', 
 						values: [inStock, productChoice]
-			}, function(error, results, fields){
+			}, function(error, results){
 				if (error) {
-					console.log(error);
+					console.log("* * * * *  Unable to UPDATE stock quantity in Products ERROR: * * * * * \n", error);
+					return;
 				}else{
 					console.log('products TABLE UPDATED');
 				}
-			// console.log("products' UPDATED stock quantity in products. mySQL MESSAGE", results[0].message);
-			// console.log(fields); //undefined
-
 		})
 
 		// add Insert purchase info to sales table
@@ -122,15 +126,27 @@ function checkInventory(productChoice, howMany, checkStock) {
 		connection.query({
 			sql: 'INSERT INTO sales (product_id, quantity_purchased) values (?, ?)',
 			values: [productChoice, howMany]
-			}, function(error, results, fields){
+			}, function(error, results){
 				if (error) {
-					console.log(error);
+					console.log("* * * * *  Unable to add SALE to sales ERROR: * * * * * \n", error);
+					return;
 				}else{
 					console.log("INSERTED sales data into sales TABLE");
 				}
 		})
-	}
 
+		connection.query({
+			sql: "SELECT products.product_name, products.price, sales.quantity_purchased, (products.price * sales.quantity_purchased) as total, sales.created_at FROM sales LEFT JOIN products ON ? = ?",
+			values: ['products.id', 'sales.product_id']
+			}, function(error, results) {
+				if (error) {
+					console.log("* * * * *  Display Purchase ERROR: * * * * * \n", error )
+				}else{
+					console.log('THANK YOU FOR YOUR PURCHASE: \n', results[0]);		
+				}
+
+		})
+	};
 };
 
 
