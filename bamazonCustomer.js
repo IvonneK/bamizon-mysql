@@ -37,25 +37,27 @@ function selectTable(table){
 
 var product;
 var productList = [];
-var pChoice;
-var selectAll = "id, product_name, concat('$', format(price,2)) as p";
-var sAll = "SELECT id, product_name, concat('$', format(price,2)) as p from products"
-console.log(sAll);
-connection.query("SELECT id, product_name, concat('$', format(price,2)) as p from products", function(error, results, fields)
-{
-	// console.log(results);
-	for (var i = 0; i < results.length; i++){
-	  	// console.log('(id: ' + results[i].id + ')  ' + results[i].product_name + ' ' + results[i].p);
-	  	product = results[i].id + ' ' + results[i].product_name + ' ' + results[i].p;
-	  	productList.push(product);
-	};	
+var productChoice;
+
+var selectChoice = "SELECT products.id, departments.department_name, products.product_name, concat('$', format(products.price,2)) as p FROM products LEFT JOIN departments ON products.department_id = departments.id ORDER BY department_name";
+// var selectChoice = "SELECT departments.department_name, id, product_name, concat('$', format(price,2)) as p from products left join departments on products.department_id = departments.id"
+console.log(selectChoice);
+connection.query(selectChoice, function(error, results, fields) {
+		console.log(results);
+		for (var i = 0; i < results.length; i++){
+		  	// console.log('(id: ' + results[i].id + ')  ' + results[i].product_name + ' ' + results[i].p);
+			console.log('before product')	  	
+		  	product = results[i].id + ')' + results[i].department_name + ': '  + results[i].product_name + ' ' + results[i].p;
+			console.log(product)	
+		  	productList.push(product);
+		};	
 
 
 	console.log('before inquirer.prompt');
 
 	inquirer.prompt ([
 		{type: "input",
-			name: "product_id",
+			name: "productDept",
 			message: "Use arrows SELECT the product you would like to purchase, then press ENTER",
 			type: "list",
 			choices: 
@@ -63,41 +65,70 @@ connection.query("SELECT id, product_name, concat('$', format(price,2)) as p fro
 		},
 		{type: "input",
 			name: "quantity",
-			message: "How many would you like?"
+			message: "How many would you like to order?"
 		}	
 	]).then(function(data){
 		console.log(data);
-		console.log(data.product_id + ' ' + data.quantity);
-		var str = data.product_id
-		var pos = str.indexOf(' ');
+		console.log(data.productDept + ' ' + data.quantity);
+		var str = data.productDept
+		var pos = str.indexOf(')');
 		if (pos > -1){
-			pChoice = parseInt(str.slice(0,pos))
+			productChoice = parseInt(str.slice(0,pos))
 		}
-		console.log(pChoice)
-		var product = data.product_id;
-		console.log('before q', product)
-		connection.query('SELECT * from products where id=' + pChoice, function(error, results, fields){
-			console.log('results: ' + results);
-			console.log(data.product_id, data.quantity);
-			console.log(results[0].stock_quantity);
-			checkInventory(pChoice, data.quantity, results[0].stock_quantity);
-			console.log('came back from inventory');
+		var quantity = parseInt(data.quantity);
+		console.log(productChoice)
+		// var product = data.productList;
+		console.log('before q select * from product id where ', productChoice)
+		connection.query({
+					sql: "SELECT * from products where id = ?", 
+					values: productChoice
+				}, function(error, results, fields){
+						console.log(results);
+						console.log(productChoice, quantity);
+						console.log(results.stock_quantity);
+						checkInventory(productChoice, quantity, results[0].stock_quantity);
+						console.log('came back from checkinventory');
 
 		}); //connection query
 	}); //then promise
 	
 });
 
-function checkInventory(productChoice, howMany, inStock) {
-	console.log('checkInventory '  + productChoice + ' ' + howMany);
-	var checkStock = inStock - howMany;
-	if (checkStock < 0){
-		console.log('Sorry currently out of stock');
+function checkInventory(productChoice, howMany, checkStock) {
+	console.log('checkInventory '  + productChoice + ' ' + howMany + ' ' + checkStock);
+	var  inStock = checkStock - howMany;
+	if (inStock < 0){
+		console.log('Sorry we are currently out of stock. Please make another selection.');
 	}else{
-		console.log('update set stock=', checkStock);
-		// connection.query('UPDATE products SET stock_quantity = ' + checkStock + ' WHERE id = ' + productChoice + "'", function(error, results, fields){
-		// 	console.log(results);
-		// })
+		console.log('before update set stock_quantity=', inStock);
+
+		// update products deduct howMany from stock_quantity in products table
+		connection.query({
+						sql: 'UPDATE products SET stock_quantity = ?  WHERE id = ?', 
+						values: [inStock, productChoice]
+			}, function(error, results, fields){
+				if (error) {
+					console.log(error);
+				}else{
+					console.log('products TABLE UPDATED');
+				}
+			// console.log("products' UPDATED stock quantity in products. mySQL MESSAGE", results[0].message);
+			// console.log(fields); //undefined
+
+		})
+
+		// add Insert purchase info to sales table
+		console.log('before query INSERT into sales');
+		connection.query({
+			sql: 'INSERT INTO sales (product_id, quantity_purchased) values (?, ?)',
+			values: [productChoice, howMany]
+			}, function(error, results, fields){
+				if (error) {
+					console.log(error);
+				}else{
+					console.log("INSERTED sales data into sales TABLE");
+				}
+		})
 	}
 
 };

@@ -6,14 +6,17 @@ The app takes orders from customers using npm inquirer. The items ordered deplet
 The bamazon.sql file in this repo contains data exported from the database.<br>
 
 ## What it looks like:
-not available yet
+![alt text](screenshots/bamazon_db-tables.png "bamazon database tables")
+![alt text](screenshots/departments-table.png "departments table")
+![alt text](screenshots/products-table.png "products table")
+![alt text](screenshots/sales-table.png "sales table")
 
 ## Technologies Used: 
 - mySQL relational database
 - JavaScript 
 - node.js 
 - npm modules used:<br>
-**inquirer** to prompt user for data<br>
+**inquirer** to prompt user for data (used type: list and type: list choices to display list of products with department names<br>
 **mysql** to have the ability to access mySQL database using node.js  
 
 
