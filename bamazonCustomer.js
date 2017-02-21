@@ -44,7 +44,7 @@ function selectTable(table){
 var product;
 var productList = [];
 var productChoice;
-
+var dash = '-';
 var selectChoice = "SELECT products.id, departments.department_name, products.product_name, concat('$', format(products.price,2)) as p FROM products LEFT JOIN departments ON products.department_id = departments.id ORDER BY department_name";
 // var selectChoice = "SELECT departments.department_name, id, product_name, concat('$', format(price,2)) as p from products left join departments on products.department_id = departments.id"
 connection.query(selectChoice, function(error, results) {
@@ -91,8 +91,8 @@ connection.query(selectChoice, function(error, results) {
 				}, function(error, results){
 						console.log(results);
 						console.log(productChoice, quantity);
-						console.log(results.stock_quantity);
-						checkInventory(productChoice, quantity, results[0].stock_quantity);
+						console.log(results[0].stock_quantity);
+						checkInventory(productChoice, quantity, results[0].stock_quantity, data.productDept);
 						console.log('came back from checkinventory');
 
 		}); //connection query
@@ -100,7 +100,7 @@ connection.query(selectChoice, function(error, results) {
 	
 });
 
-function checkInventory(productChoice, howMany, checkStock) {
+function checkInventory(productChoice, howMany, checkStock, productDeptPurchased) {
 	console.log('checkInventory '  + productChoice + ' ' + howMany + ' ' + checkStock);
 	var  inStock = checkStock - howMany;
 	if (inStock < 0){
@@ -136,13 +136,21 @@ function checkInventory(productChoice, howMany, checkStock) {
 		})
 
 		connection.query({
-			sql: "SELECT products.product_name, products.price, sales.quantity_purchased, (products.price * sales.quantity_purchased) as total, sales.created_at FROM sales LEFT JOIN products ON ? = ?",
-			values: ['products.id', 'sales.product_id']
+			sql: "SELECT id, product_name, concat('$', format(price,2)) as p, ?, concat('$', format((price * ?),2)) as total FROM products where id = ?",
+			values: [howMany, howMany, productChoice]
 			}, function(error, results) {
 				if (error) {
 					console.log("* * * * *  Display Purchase ERROR: * * * * * \n", error )
 				}else{
-					console.log('THANK YOU FOR YOUR PURCHASE: \n', results[0]);		
+					console.log(howMany)
+					console.log(results);
+					var displayText = 'THANK YOU FOR YOUR PURCHASE: \n \n' + 'Product: \n (id:' + results[0].id + ') ' + results[0].product_name + '       ' + howMany + ' x ' + results[0].p + ' \n \n    ****  Your Total Purchase: ' + results[0].total + '    ****';		
+					for (var i = 0; i < 70; i++) {
+						dash = '-' + dash;
+					}
+					console.log(dash + '\n');
+					console.log(displayText);
+					console.log('\n' + dash);
 				}
 
 		})
