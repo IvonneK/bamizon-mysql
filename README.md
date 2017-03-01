@@ -1,9 +1,9 @@
 bamazon-mysql 
 
 #Bamazon storefront
-Bamazon is a online storefront. It uses mySQL and node.js.<br> 
-The app gives customers the ability to place an order. The customer starts with a an option to select from a list of items. The npm package used is inquirer. The apps posts the activity processed. If an order is places the app removes the stock item from Bamazon's inventory.<br>
-The bamazon.sql file in this repo contains data exported from the database.<br>
+Bamazon is an online storefront. It was uses mySQL and node inquirer<br> 
+The app gives customers the ability to place an order by selecting an item from a product list. <br>
+If an order is placed the app removes the stock item from Bamazon's inventory and posts<br> activity processed. The bamazon.sql file in this repo contains data exported from the <br>database.<br>
 
 ## What it looks like:
 **How it works...**
