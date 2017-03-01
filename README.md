@@ -9,7 +9,7 @@ The bamazon.sql file in this repo contains data exported from the database.<br>
 **How it works...**
 ![alt text] (http://g.recordit.co/LA3ZZoOs2d.gif "How it works..."
 **Screens & Database Structure**
-![alt text](screenshots/bamazonScreen1.png "bamazon Department: Product Choice Selection screen")
+![alt text](screenshots/bamazonScreen1.png "bamazon Product Choice Selection screen")
 ![alt text](screenshots/bamazonScreen2.png "bamazon Quantity screen")
 ![alt text](screenshots/bamazonScreen3.png "bamazon Thank you for your purchase screen")
 ![alt text](screenshots/bamazonScreen4.png "bamazon Unable to fill your order screen")
